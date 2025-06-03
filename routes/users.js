@@ -6,7 +6,7 @@ const { ObjectId } = require('mongodb');
 // GET all users
 router.get('/', async (req, res) => {
     try {
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const users = await db.collection('users').find().toArray();
         res.status(200).json(users);
     } catch (error) {
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 // GET single user by ID
 router.get('/:id', async (req, res) => {
     try {
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const userId = new ObjectId(req.params.id);
         const user = await db.collection('users').findOne({ _id: userId });
         
@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
         }
 
         // Check if email already exists
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const existingUser = await db.collection('users').findOne({ email });
         
         if (existingUser) {
@@ -87,7 +87,7 @@ router.put('/:id', async (req, res) => {
         }
 
         // Check if email already exists (but not for this user)
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const existingUser = await db.collection('users').findOne({ 
             email, 
             _id: { $ne: userId } 
@@ -125,7 +125,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const userId = new ObjectId(req.params.id);
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const result = await db.collection('users').deleteOne({ _id: userId });
 
         if (result.deletedCount === 0) {

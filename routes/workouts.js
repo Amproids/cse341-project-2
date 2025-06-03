@@ -6,7 +6,7 @@ const { ObjectId } = require('mongodb');
 // GET all workouts
 router.get('/', async (req, res) => {
     try {
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const workouts = await db.collection('workouts').find().toArray();
         res.status(200).json(workouts);
     } catch (error) {
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 // GET single workout by ID
 router.get('/:id', async (req, res) => {
     try {
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const workoutId = new ObjectId(req.params.id);
         const workout = await db.collection('workouts').findOne({ _id: workoutId });
         
@@ -56,7 +56,7 @@ router.post('/', async (req, res) => {
             createdAt: new Date()
         };
 
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const result = await db.collection('workouts').insertOne(workout);
         
         res.status(201).json({ 
@@ -93,7 +93,7 @@ router.put('/:id', async (req, res) => {
             updatedAt: new Date()
         };
 
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const result = await db.collection('workouts').updateOne(
             { _id: workoutId },
             { $set: updatedWorkout }
@@ -114,7 +114,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const workoutId = new ObjectId(req.params.id);
-        const db = mongodb.getDb().db('fitness_tracker');
+        const db = mongodb.getDb().db('cse341-project2');
         const result = await db.collection('workouts').deleteOne({ _id: workoutId });
 
         if (result.deletedCount === 0) {

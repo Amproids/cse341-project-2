@@ -1,22 +1,22 @@
 ### Fitness Tracker API Tests
-### Local Development Server: http://localhost:8081
+### Remote Development Server: https://cse341-project-2-7bfl.onrender.com
 
 ### ========================================
 ### HOME ROUTE
 ### ========================================
 
 ### Test Home Route
-GET http://localhost:8081/
+GET https://cse341-project-2-7bfl.onrender.com/
 
 ### ========================================
 ### USERS COLLECTION TESTS
 ### ========================================
 
 ### Get all users
-GET http://localhost:8081/users
+GET https://cse341-project-2-7bfl.onrender.com/users
 
 ### Create a new user (Test User 1)
-POST http://localhost:8081/users
+POST https://cse341-project-2-7bfl.onrender.com/users
 Content-Type: application/json
 
 {
@@ -27,7 +27,7 @@ Content-Type: application/json
 }
 
 ### Create another user (Test User 2)
-POST http://localhost:8081/users
+POST https://cse341-project-2-7bfl.onrender.com/users
 Content-Type: application/json
 
 {
@@ -38,7 +38,7 @@ Content-Type: application/json
 }
 
 ### Create user with missing required fields (should fail)
-POST http://localhost:8081/users
+POST https://cse341-project-2-7bfl.onrender.com/users
 Content-Type: application/json
 
 {
@@ -46,10 +46,10 @@ Content-Type: application/json
 }
 
 ### Get user by ID (replace with actual ID from create response)
-GET http://localhost:8081/users/683f775e970b192f28ecbcbe
+GET https://cse341-project-2-7bfl.onrender.com/users/683f775e970b192f28ecbcbe
 
 ### Update user by ID (replace with actual ID)
-PUT http://localhost:8081/users/683f775e970b192f28ecbcbe
+PUT https://cse341-project-2-7bfl.onrender.com/users/683f775e970b192f28ecbcbe
 Content-Type: application/json
 
 {
@@ -60,17 +60,17 @@ Content-Type: application/json
 }
 
 ### Delete user by ID (replace with actual ID)
-DELETE http://localhost:8081/users/683f775e970b192f28ecbcbe
+DELETE https://cse341-project-2-7bfl.onrender.com/users/683f775e970b192f28ecbcbe
 
 ### ========================================
 ### WORKOUTS COLLECTION TESTS
 ### ========================================
 
 ### Get all workouts
-GET http://localhost:8081/workouts
+GET https://cse341-project-2-7bfl.onrender.com/workouts
 
 ### Create a new workout (Cardio)
-POST http://localhost:8081/workouts
+POST https://cse341-project-2-7bfl.onrender.com/workouts
 Content-Type: application/json
 
 {
@@ -84,7 +84,7 @@ Content-Type: application/json
 }
 
 ### Create another workout (Strength Training)
-POST http://localhost:8081/workouts
+POST https://cse341-project-2-7bfl.onrender.com/workouts
 Content-Type: application/json
 
 {
@@ -98,7 +98,7 @@ Content-Type: application/json
 }
 
 ### Create workout with minimal fields
-POST http://localhost:8081/workouts
+POST https://cse341-project-2-7bfl.onrender.com/workouts
 Content-Type: application/json
 
 {
@@ -110,7 +110,7 @@ Content-Type: application/json
 }
 
 ### Create workout with missing required fields (should fail)
-POST http://localhost:8081/workouts
+POST https://cse341-project-2-7bfl.onrender.com/workouts
 Content-Type: application/json
 
 {
@@ -119,10 +119,10 @@ Content-Type: application/json
 }
 
 ### Get workout by ID (replace with actual ID from create response)
-GET http://localhost:8081/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
+GET https://cse341-project-2-7bfl.onrender.com/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
 
 ### Update workout by ID (replace with actual ID)
-PUT http://localhost:8081/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
+PUT https://cse341-project-2-7bfl.onrender.com/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
 Content-Type: application/json
 
 {
@@ -136,23 +136,23 @@ Content-Type: application/json
 }
 
 ### Delete workout by ID (replace with actual ID)
-DELETE http://localhost:8081/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
+DELETE https://cse341-project-2-7bfl.onrender.com/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
 
 ### ========================================
 ### ERROR TESTING
 ### ========================================
 
 ### Test invalid user ID format
-GET http://localhost:8081/users/invalid-id-format
+GET https://cse341-project-2-7bfl.onrender.com/users/invalid-id-format
 
 ### Test invalid workout ID format
-GET http://localhost:8081/workouts/invalid-id-format
+GET https://cse341-project-2-7bfl.onrender.com/workouts/invalid-id-format
 
 ### Test non-existent user ID (use a valid ObjectId format but non-existent)
-GET http://localhost:8081/users/507f1f77bcf86cd799439011
+GET https://cse341-project-2-7bfl.onrender.com/users/507f1f77bcf86cd799439011
 
 ### Test non-existent workout ID (use a valid ObjectId format but non-existent)
-GET http://localhost:8081/workouts/507f1f77bcf86cd799439012
+GET https://cse341-project-2-7bfl.onrender.com/workouts/507f1f77bcf86cd799439012
 
 ### ========================================
 ### TESTING WORKFLOW
