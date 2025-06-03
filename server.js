@@ -34,7 +34,7 @@ mongodb.initDb((err) => {
                 `API Documentation available at: http://localhost:${port}/api-docs`
             );
             console.log(
-                'Production API Documentation: https://your-render-url.onrender.com/api-docs'
+                'Production API Documentation: https://cse341-project-2-7bfl.onrender.com/api-docs'
             );
         });
     }

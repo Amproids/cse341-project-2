@@ -46,7 +46,7 @@ Content-Type: application/json
 }
 
 ### Get user by ID (replace with actual ID from create response)
-GET https://cse341-project-2-7bfl.onrender.com/users/683f775e970b192f28ecbcbe
+GET https://cse341-project-2-7bfl.onrender.com/users/683f85f40d02660060c28a80
 
 ### Update user by ID (replace with actual ID)
 PUT https://cse341-project-2-7bfl.onrender.com/users/683f775e970b192f28ecbcbe
@@ -60,7 +60,7 @@ Content-Type: application/json
 }
 
 ### Delete user by ID (replace with actual ID)
-DELETE https://cse341-project-2-7bfl.onrender.com/users/683f775e970b192f28ecbcbe
+DELETE https://cse341-project-2-7bfl.onrender.com/users/683f85f40d02660060c28a80
 
 ### ========================================
 ### WORKOUTS COLLECTION TESTS
@@ -136,7 +136,7 @@ Content-Type: application/json
 }
 
 ### Delete workout by ID (replace with actual ID)
-DELETE https://cse341-project-2-7bfl.onrender.com/workouts/REPLACE_WITH_ACTUAL_WORKOUT_ID
+DELETE https://cse341-project-2-7bfl.onrender.com/workouts/683f87310d02660060c28a81
 
 ### ========================================
 ### ERROR TESTING
