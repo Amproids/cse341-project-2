@@ -30,12 +30,8 @@ mongodb.initDb((err) => {
     } else {
         app.listen(port, () => {
             console.log('Fitness Tracker API is listening at port ' + port);
-            console.log(
-                `API Documentation available at: http://localhost:${port}/api-docs`
-            );
-            console.log(
-                'Production API Documentation: https://cse341-project-2-7bfl.onrender.com/api-docs'
-            );
+            console.log(`API Documentation available at: http://localhost:${port}/api-docs`);
+            console.log('Production API Documentation: https://cse341-project-2-7bfl.onrender.com/api-docs');
         });
     }
 });

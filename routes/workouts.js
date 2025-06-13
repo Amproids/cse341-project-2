@@ -21,11 +21,11 @@ router.get('/:id', async (req, res) => {
         const db = mongodb.getDb().db('cse341-project2');
         const workoutId = new ObjectId(req.params.id);
         const workout = await db.collection('workouts').findOne({ _id: workoutId });
-        
+
         if (!workout) {
             return res.status(404).json({ error: 'Workout not found' });
         }
-        
+
         res.status(200).json(workout);
     } catch (error) {
         console.error('Error fetching workout:', error);
@@ -38,10 +38,10 @@ router.post('/', async (req, res) => {
     try {
         // Basic validation
         const { userId, workoutName, date, duration, caloriesBurned, exerciseType, notes } = req.body;
-        
+
         if (!userId || !workoutName || !date || !duration || !exerciseType) {
-            return res.status(400).json({ 
-                error: 'Missing required fields: userId, workoutName, date, duration, exerciseType' 
+            return res.status(400).json({
+                error: 'Missing required fields: userId, workoutName, date, duration, exerciseType'
             });
         }
 
@@ -58,10 +58,10 @@ router.post('/', async (req, res) => {
 
         const db = mongodb.getDb().db('cse341-project2');
         const result = await db.collection('workouts').insertOne(workout);
-        
-        res.status(201).json({ 
+
+        res.status(201).json({
             message: 'Workout created successfully',
-            workoutId: result.insertedId 
+            workoutId: result.insertedId
         });
     } catch (error) {
         console.error('Error creating workout:', error);
@@ -74,11 +74,11 @@ router.put('/:id', async (req, res) => {
     try {
         const workoutId = new ObjectId(req.params.id);
         const { userId, workoutName, date, duration, caloriesBurned, exerciseType, notes } = req.body;
-        
+
         // Basic validation
         if (!userId || !workoutName || !date || !duration || !exerciseType) {
-            return res.status(400).json({ 
-                error: 'Missing required fields: userId, workoutName, date, duration, exerciseType' 
+            return res.status(400).json({
+                error: 'Missing required fields: userId, workoutName, date, duration, exerciseType'
             });
         }
 
@@ -94,10 +94,7 @@ router.put('/:id', async (req, res) => {
         };
 
         const db = mongodb.getDb().db('cse341-project2');
-        const result = await db.collection('workouts').updateOne(
-            { _id: workoutId },
-            { $set: updatedWorkout }
-        );
+        const result = await db.collection('workouts').updateOne({ _id: workoutId }, { $set: updatedWorkout });
 
         if (result.matchedCount === 0) {
             return res.status(404).json({ error: 'Workout not found' });

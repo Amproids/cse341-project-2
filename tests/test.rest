@@ -1,0 +1,21 @@
+### Test User Creation
+POST http://localhost:8081/users
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "test.user@example.com",
+  "password": "TestPassword123!",
+  "passwordConfirm": "TestPassword123!",
+  "dateOfBirth": "1990-01-01",
+  "gender": "M",
+  "height": 180,
+  "weight": 75
+}
+
+### Get All Users (to verify creation)
+GET http://localhost:8081/users
+
+### Delete Test User (replace USER_ID_HERE with the actual ID from creation response)
+DELETE http://localhost:8081/users/684b7dc870befd18a894488b
