@@ -3,7 +3,8 @@ const router = express.Router();
 const mongodb = require('../db/connect');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
-const { validateUserForCreation, validateUserForUpdate, normalizeEmail } = require('../validators/userValidator');
+const jwt = require('jsonwebtoken');
+const { validateUserForCreation, validateUserForUpdate, normalizeEmail, validateUserForLogin } = require('../validators/userValidator');
 
 // GET all users
 router.get('/', async (req, res) => {
@@ -99,7 +100,7 @@ router.post('/', async (req, res) => {
         }
 
         // Hash the password
-        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
+        const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS);
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const user = {
@@ -127,6 +128,77 @@ router.post('/', async (req, res) => {
     } catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Failed to create user' });
+    }
+});
+
+// POST login user
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Basic validation
+        const validationErrors = validateUserForLogin(req.body);
+        if (validationErrors.length > 0) {
+            return res.status(400).json({
+                error: 'Validation failed',
+                details: validationErrors
+            });
+        }
+
+        const db = mongodb.getDb().db('cse341-project2');
+        const normalizedEmail = normalizeEmail(email);
+
+        // Find user by email (include password this time)
+        const user = await db.collection('users').findOne({ email: normalizedEmail });
+
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Check if account is active
+        if (!user.isActive) {
+            return res.status(401).json({ error: 'Account is deactivated' });
+        }
+
+        // Verify password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Create JWT token
+        const tokenPayload = {
+            userId: user._id,
+            email: user.email,
+            role: user.role || 'user'
+        };
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            console.error('JWT_SECRET not found in the environment variables');
+            return res.status(500).json({ error: 'Server configuration error' });
+        }
+        const token = jwt.sign(tokenPayload, jwtSecret, {
+            expiresIn: '2h',
+            algorithm: 'HS256',
+            issuer: 'cse341-project2'
+        });
+
+        //Return success response (exclude password from user data)
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role || 'user'
+            }
+        });
+
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Failed to login' });
     }
 });
 

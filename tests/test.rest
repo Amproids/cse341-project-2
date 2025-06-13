@@ -18,4 +18,13 @@ Content-Type: application/json
 GET http://localhost:8081/users
 
 ### Delete Test User (replace USER_ID_HERE with the actual ID from creation response)
-DELETE http://localhost:8081/users/684b7dc870befd18a894488b
+DELETE http://localhost:8081/users/684ba167e106731a006b2f75
+
+### Test that user login actually gives usable JWT
+POST http://localhost:8081/users/login
+Content-Type: application/json
+
+{
+    "email": "test.user@example.com", 
+    "password": "TestPassword123!"
+}

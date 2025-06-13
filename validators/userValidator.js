@@ -191,6 +191,24 @@ const normalizeEmail = (email) => {
     return email ? email.toLowerCase().trim() : '';
 };
 
+const validateUserForLogin = (userData) => {
+    const errors = [];
+    const { email, password } = userData;
+
+    if (!email) {
+        errors.push('Email is required');
+    } else {
+        const emailError = validateEmail(email);
+        if (emailError) errors.push(emailError);
+    }
+
+    if (!password) {
+        errors.push('Password is required');
+    }
+
+    return errors;
+};
+
 module.exports = {
     validateUserForCreation,
     validateUserForUpdate,
@@ -201,5 +219,6 @@ module.exports = {
     validateGender,
     validateHeight,
     validateWeight,
-    validatePassword
+    validatePassword,
+    validateUserForLogin
 };
