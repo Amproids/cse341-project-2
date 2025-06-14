@@ -14,6 +14,7 @@
         "test:read": "jest tests/users/users.read.test.js",
         "test:update": "jest tests/users/users.update.test.js",
         "test:delete": "jest tests/users/users.delete.test.js",
+        "test:auth": "jest tests/users/users.auth.test.js",
         "test:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:8081 && npm test\"",
         "test:dev:watch": "concurrently \"npm run dev\" \"wait-on http://localhost:8081 && npm run test:watch\"",
         "test:ci": "cross-env NODE_ENV=test npm start & wait-on http://localhost:8081 && npm test && kill $!",

@@ -1,5 +1,4 @@
 import js from '@eslint/js';
-
 export default [
     js.configs.recommended,
     {
@@ -15,7 +14,11 @@ export default [
                 global: 'readonly',
                 module: 'readonly',
                 require: 'readonly',
-                exports: 'readonly'
+                exports: 'readonly',
+                setTimeout: 'readonly',
+                clearTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly'
             }
         },
         rules: {
@@ -40,7 +43,11 @@ export default [
                 afterAll: 'readonly',
                 beforeEach: 'readonly',
                 afterEach: 'readonly',
-                jest: 'readonly'
+                jest: 'readonly',
+                setTimeout: 'readonly',
+                clearTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly'
             }
         }
     }

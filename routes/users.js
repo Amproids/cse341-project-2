@@ -4,10 +4,16 @@ const mongodb = require('../db/connect');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { validateUserForCreation, validateUserForUpdate, normalizeEmail, validateUserForLogin } = require('../validators/userValidator');
+const {
+    validateUserForCreation,
+    validateUserForUpdate,
+    normalizeEmail,
+    validateUserForLogin
+} = require('../validators/userValidator');
+const { authenticateToken } = require('../middleware/auth');
 
 // GET all users
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
 
@@ -41,22 +47,44 @@ router.get('/', async (req, res) => {
 });
 
 // GET single user by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
         const userId = new ObjectId(req.params.id);
+        const requestingUserId = new ObjectId(req.user.userId);
 
-        // Exclude password field using MongoDB projection
-        const user = await db.collection('users').findOne(
-            { _id: userId },
-            { projection: { password: 0 } } // 0 means exclude
-        );
-
+        // Check if user exists FIRST
+        const user = await db.collection('users').findOne({ _id: userId });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.status(200).json(user);
+        // Check if user is requesting their own data or if they're an admin
+        const isOwner = userId.equals(requestingUserId);
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({ error: 'Access denied. You can only view your own profile.' });
+        }
+
+        // Different projection based on whether it's the owner or admin
+        let projection = { password: 0 }; // Always exclude password
+
+        if (!isOwner && isAdmin) {
+            // Admin viewing other user - might want to limit some fields
+            projection = {
+                password: 0
+                // Could add other sensitive fields admins shouldn't see
+            };
+        }
+
+        // Exclude password field using MongoDB projection
+        const filteredUser = await db.collection('users').findOne(
+            { _id: userId },
+            { projection: projection } // 0 means exclude
+        );
+
+        res.status(200).json(filteredUser);
     } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).json({ error: 'Failed to fetch user' });
@@ -71,17 +99,20 @@ router.post('/', async (req, res) => {
             lastName,
             email,
             password,
-            passwordConfirm,
+            passwordConfirm, // eslint-disable-line no-unused-vars
             dateOfBirth,
             gender,
             height,
             weight,
             isTestUser
+            // NOTE: Deliberately NOT extracting 'role' from req.body
+            // This prevents users from setting their own role during registration
         } = req.body;
 
         // Validate input
         const validationErrors = validateUserForCreation(req.body);
         if (validationErrors.length > 0) {
+            console.log(validationErrors);
             return res.status(400).json({
                 error: 'Validation failed',
                 details: validationErrors
@@ -112,7 +143,7 @@ router.post('/', async (req, res) => {
             gender: gender.toUpperCase(),
             height: Number(height) || null,
             weight: Number(weight) || null,
-            role: 'user',
+            role: 'user', // Always hardcode to 'user' - never trust client input for roles
             emailVerified: false,
             isActive: true,
             isTestUser: isTestUser || false,
@@ -195,7 +226,6 @@ router.post('/login', async (req, res) => {
                 role: user.role || 'user'
             }
         });
-
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ error: 'Failed to login' });
@@ -203,10 +233,27 @@ router.post('/login', async (req, res) => {
 });
 
 // PUT update user
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
     try {
         const userId = new ObjectId(req.params.id);
+        const requestingUserId = new ObjectId(req.user.userId);
         const { firstName, lastName, email, dateOfBirth, gender, height, weight } = req.body;
+
+        const db = mongodb.getDb().db('cse341-project2');
+
+        // Check if user exists
+        const existingUser = await db.collection('users').findOne({ _id: userId });
+        if (!existingUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if user is updating their own data or if they're an admin
+        const isOwner = userId.equals(requestingUserId);
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({ error: 'Access denied. You can only update your own profile.' });
+        }
 
         // Validate input
         const validationErrors = validateUserForUpdate(req.body);
@@ -215,14 +262,6 @@ router.put('/:id', async (req, res) => {
                 error: 'Validation failed',
                 details: validationErrors
             });
-        }
-
-        const db = mongodb.getDb().db('cse341-project2');
-
-        // Check if user exists
-        const existingUser = await db.collection('users').findOne({ _id: userId });
-        if (!existingUser) {
-            return res.status(404).json({ error: 'User not found' });
         }
 
         // Build update object with only provided fields
@@ -266,20 +305,111 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE user
-router.delete('/:id', async (req, res) => {
+// DELETE user
+router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const userId = new ObjectId(req.params.id);
+        const requestingUserId = new ObjectId(req.user.userId);
         const db = mongodb.getDb().db('cse341-project2');
-        const result = await db.collection('users').deleteOne({ _id: userId });
 
-        if (result.deletedCount === 0) {
+        // Check permissions FIRST - before revealing anything about user existence
+        const isOwner = userId.equals(requestingUserId);
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({ error: 'Access denied. You can only delete your own account.' });
+        }
+
+        // Only now check if user exists (since they have permission)
+        const userToDelete = await db.collection('users').findOne({ _id: userId });
+        if (!userToDelete) {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        // Delete the user
+        await db.collection('users').deleteOne({ _id: userId });
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Failed to delete user' });
+    }
+});
+
+// PATCH update user role - Admin only route
+router.patch('/:id/role', authenticateToken, async (req, res) => {
+    try {
+        // Only admins can change roles
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
+
+        const userId = new ObjectId(req.params.id);
+        const { role } = req.body;
+
+        // Validate role
+        const validRoles = ['user', 'admin']; // Define your valid roles
+        if (!role || !validRoles.includes(role)) {
+            return res.status(400).json({
+                error: 'Invalid role',
+                validRoles: validRoles
+            });
+        }
+
+        const db = mongodb.getDb().db('cse341-project2');
+
+        // Check if user exists
+        const existingUser = await db.collection('users').findOne({ _id: userId });
+        if (!existingUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Prevent admins from demoting themselves (optional safety check)
+        const requestingUserId = new ObjectId(req.user.userId);
+        if (userId.equals(requestingUserId) && role !== 'admin') {
+            return res.status(400).json({ error: 'Cannot change your own admin role' });
+        }
+
+        const result = await db.collection('users').updateOne(
+            { _id: userId },
+            {
+                $set: {
+                    role: role,
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({
+            message: `User role updated to ${role} successfully`,
+            userId: userId,
+            newRole: role
+        });
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        res.status(500).json({ error: 'Failed to update user role' });
+    }
+});
+
+// GET current user profile
+router.get('/profile/me', authenticateToken, async (req, res) => {
+    try {
+        const db = mongodb.getDb().db('cse341-project2');
+        const userId = new ObjectId(req.user.userId);
+
+        const user = await db.collection('users').findOne({ _id: userId }, { projection: { password: 0 } });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        res.status(500).json({ error: 'Failed to fetch user profile' });
     }
 });
 
