@@ -9,7 +9,7 @@ const router = express.Router();
 passport.use(new GitHubStrategy({
    clientID: process.env.GITHUB_CLIENT_ID,
    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-   callbackURL: "/auth/github/callback"
+   callbackURL: process.env.GITHUB_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
    try {
        const db = mongodb.getDb().db('cse341-project2');
