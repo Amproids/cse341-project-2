@@ -10,7 +10,7 @@ const passport = require('passport');
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT;
 
 // Middleware for parsing JSON requests
 app.use(express.json());

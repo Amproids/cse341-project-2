@@ -4,7 +4,6 @@
 @localUrl = http://localhost:8081
 
 # Variables to store tokens and IDs
-@token = 
 @oauthToken = 
 @userId = 
 @workoutId = 
@@ -13,111 +12,67 @@
 # 1. OAUTH AUTHENTICATION (Primary Demo)
 ###############################################
 
-### 1a. GitHub OAuth Login - Redirect to GitHub (MAIN OAUTH DEMO)
-GET {{baseUrl}}/auth/github
-# This will redirect to GitHub - complete login in browser
-# Copy the token from the JSON response and paste in @oauthToken above
+### 1a. GitHub OAuth Login - USE BROWSER, NOT REST CLIENT
+# Open this URL in browser: http://localhost:8081/auth/github
+# Copy the token from JSON response and paste in @oauthToken variable above
 
-### 1b. Test OAuth Token on Protected Route
-GET {{baseUrl}}/users/profile/me
+### 1b. Get Current User Profile (OAuth Token)
+GET {{localUrl}}/users/profile/me
 Authorization: Bearer {{oauthToken}}
-# This proves OAuth generates valid JWTs
+# Copy user ID from response and paste in @userId above
 
 ### 1c. Get All Users with OAuth Token
-GET {{baseUrl}}/users
+GET {{localUrl}}/users
 Authorization: Bearer {{oauthToken}}
 
 ###############################################
-# 2. TRADITIONAL JWT LOGIN (For Comparison)
+# 2. AUTHENTICATION DEMOS (Show Protected Routes)
 ###############################################
 
-### 2a. Create Test User (Traditional)
-POST {{baseUrl}}/users
+### 2a. Protected Route WITHOUT Token (401 Error)
+GET {{localUrl}}/users
+
+### 2b. Protected Route WITH OAuth Token (Success)
+GET {{localUrl}}/users
+Authorization: Bearer {{oauthToken}}
+
+###############################################
+# 3. DATA VALIDATION ERRORS (400/500 Status)
+###############################################
+
+### 3a. User Update Validation Error - Invalid Data
+PUT {{localUrl}}/users/{{userId}}
+Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
 {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "password": "SecurePass123!",
-    "passwordConfirm": "SecurePass123!",
-    "dateOfBirth": "1990-05-15",
-    "gender": "male",
-    "height": 180,
-    "weight": 75,
-    "isTestUser": true
-}
-
-### 2b. Traditional Login - Get JWT Token
-POST {{baseUrl}}/users/login
-Content-Type: application/json
-
-{
-    "email": "john.doe@example.com",
-    "password": "SecurePass123!"
-}
-# Copy token from response and paste in @token above
-
-###############################################
-# 3. AUTHENTICATION DEMOS (Show Protected Routes)
-###############################################
-
-### 3a. Protected Route WITHOUT Token (401 Error)
-GET {{baseUrl}}/users
-
-### 3b. Protected Route WITH Traditional Token (Success)
-GET {{baseUrl}}/users
-Authorization: Bearer {{token}}
-
-### 3c. Get Current User Profile (Traditional Token)
-GET {{baseUrl}}/users/profile/me
-Authorization: Bearer {{token}}
-# Copy user ID from response and paste in @userId
-
-###############################################
-# 4. DATA VALIDATION ERRORS (400/500 Status)
-###############################################
-
-### 4a. User Creation Validation Error - Missing Fields
-POST {{baseUrl}}/users
-Content-Type: application/json
-
-{
-    "firstName": "Jane",
-    "email": "invalid-email"
-}
-
-### 4b. Login Validation Error - Wrong Credentials  
-POST {{baseUrl}}/users/login
-Content-Type: application/json
-
-{
-    "email": "wrong@email.com",
-    "password": "wrongpass"
+    "email": "invalid-email-format",
+    "weight": "not-a-number",
+    "height": -50
 }
 
 ###############################################
-# 5. WORKOUTS CRUD (Second Collection Demo)
+# 4. WORKOUTS CRUD (Second Collection Demo)
 ###############################################
 
-### 5a. Create Workout (Use OAuth Token)
-POST {{baseUrl}}/workouts
+### 4a. Create Workout (Use OAuth Token)
+POST {{localUrl}}/workouts
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
 {
     "userId": "{{userId}}",
     "workoutName": "OAuth User Morning Run",
-    "date": "2024-06-14",
+    "date": "2025-06-14",
     "duration": 45,
     "caloriesBurned": 300,
     "exerciseType": "Cardio",
     "notes": "Created via OAuth authentication"
 }
-# Copy workout ID from response
+### Copy workout ID from response and paste in @workoutId above
 
-### 5b. Workout Validation Error - Missing Required Fields
-POST {{baseUrl}}/workouts
+### 4b. Workout Validation Error - Missing Required Fields
+POST {{localUrl}}/workouts
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -125,16 +80,16 @@ Content-Type: application/json
     "workoutName": "Invalid Workout"
 }
 
-### 5c. Get All Workouts (Show Pagination)
-GET {{baseUrl}}/workouts?page=1&limit=5
+### 4c. Get All Workouts (Show Pagination)
+GET {{localUrl}}/workouts?page=1&limit=5
 Authorization: Bearer {{oauthToken}}
 
-### 5d. Get Single Workout
-GET {{baseUrl}}/workouts/{{workoutId}}
+### 4d. Get Single Workout
+GET {{localUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 
-### 5e. Update Workout (PUT Demo)
-PUT {{baseUrl}}/workouts/{{workoutId}}
+### 4e. Update Workout (PUT Demo)
+PUT {{localUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -145,87 +100,81 @@ Content-Type: application/json
 }
 
 ###############################################
-# 6. ERROR HANDLING DEMOS (Various Status Codes)
+# 5. ERROR HANDLING DEMOS (Various Status Codes)
 ###############################################
 
-### 6a. Invalid ID Format (400 Error)
-GET {{baseUrl}}/workouts/invalid-id-format
+### 5a. Invalid ID Format (400 Error)
+GET {{localUrl}}/workouts/invalid-id-format
 Authorization: Bearer {{oauthToken}}
 
-### 6b. Non-existent Resource (404 Error)
-GET {{baseUrl}}/workouts/507f1f77bcf86cd799439011
+### 5b. Non-existent Resource (404 Error)
+GET {{localUrl}}/workouts/507f1f77bcf86cd799439011
 Authorization: Bearer {{oauthToken}}
 
-### 6c. Access Denied - No Authentication (401)
-GET {{baseUrl}}/workouts/{{workoutId}}
+### 5c. Access Denied - No Authentication (401)
+GET {{localUrl}}/workouts/{{workoutId}}
 
 ###############################################
-# 7. UPDATE OPERATIONS (PUT Validation)
+# 6. UPDATE OPERATIONS (PUT Validation)
 ###############################################
 
-### 7a. Update User (Valid Data)
-PUT {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{token}}
+### 6a. Update User (Valid Data)
+PUT {{localUrl}}/users/{{userId}}
+Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
 {
-    "firstName": "John Updated",
+    "firstName": "Updated via OAuth",
     "weight": 78
 }
 
-### 7b. Update User Validation Error (400)
-PUT {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{token}}
+### 6b. Update User Validation Error (400)
+PUT {{localUrl}}/users/{{userId}}
+Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
 {
     "email": "invalid-email-format",
-    "weight": "not-a-number"
+    "dateOfBirth": "not-a-date"
 }
 
 ###############################################
-# 8. DELETE OPERATIONS (Complete CRUD)
+# 7. DELETE OPERATIONS (Complete CRUD)
 ###############################################
 
-### 8a. Delete Workout
-DELETE {{baseUrl}}/workouts/{{workoutId}}
+### 7a. Delete Workout
+DELETE {{localUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 
-### 8b. Delete User (Do this last)
-DELETE {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{token}}
-
-### 8c. Verify Deletion (404 Expected)
-GET {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{token}}
+### 7b. Verify Deletion (404 Expected)
+GET {{localUrl}}/workouts/{{workoutId}}
+Authorization: Bearer {{oauthToken}}
 
 ###############################################
-# QUICK OAUTH VIDEO SEQUENCE (8 minutes max)
+# STREAMLINED OAUTH VIDEO SEQUENCE (8 minutes max)
 ###############################################
 
-# 🎥 VIDEO SEQUENCE (Follow this exact order):
+# 🎥 VIDEO SEQUENCE:
 # 1. Show OAuth login (1a) - GitHub redirect & authentication ⭐ MAIN FEATURE
 # 2. Get OAuth token from callback JSON response
-# 3. Use OAuth token on protected route (1b) - Show OAuth working ⭐
-# 4. Show traditional login (2b) for comparison
-# 5. Show protected route without auth (3a) - 401 error
-# 6. Show validation error (4a) - 400 status
-# 7. Create workout with OAuth token (5a) - Second collection
-# 8. Show workout validation error (5b) - Data validation
-# 9. Get workouts (5c) - GET operation
-# 10. Update workout (5e) - PUT operation  
-# 11. Show MongoDB Compass - Both collections with 7+ fields
-# 12. Delete workout (8a) - DELETE operation
-# 13. Show Swagger documentation at /api-docs
+# 3. Get user profile (1b) - Copy userId for later use ⭐
+# 4. Show protected route without auth (2a) - 401 error
+# 5. Show protected route with OAuth token (2b) - Authentication working ⭐
+# 6. Show validation error (3a) - 400 status for users
+# 7. Create workout with OAuth token (4a) - Second collection ⭐
+# 8. Show workout validation error (4b) - Data validation
+# 9. Get workouts (4c) - GET operation with pagination
+# 10. Update workout (4e) - PUT operation  
+# 11. Show MongoDB Compass - Both collections with 7+ fields ⭐
+# 12. Delete workout (7a) - DELETE operation
+# 13. Show Swagger documentation at /api-docs ⭐
 
 ###############################################
 # STATUS CODES TO DEMONSTRATE:
 ###############################################
 # ✅ 200 - Successful GET requests
-# ✅ 201 - Successful POST (user/workout creation)
+# ✅ 201 - Successful POST (workout creation)
 # ✅ 400 - Validation errors (bad data)
 # ✅ 401 - Authentication required
-# ✅ 403 - Forbidden (wrong permissions)
 # ✅ 404 - Resource not found
-# ✅ 409 - Conflict (duplicate email)
 # ✅ 500 - Server errors (try/catch)
