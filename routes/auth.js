@@ -17,7 +17,6 @@ passport.use(new GitHubStrategy({
        
        // First try to find by GitHub ID
        let user = await db.collection('users').findOne({ githubId: profile.id });
-
        // If no GitHub ID match, try email
        if (!user) {
            user = await db.collection('users').findOne({ email: email });
@@ -60,15 +59,26 @@ passport.use(new GitHubStrategy({
    }
 }));
 
-// OAuth routes
-router.get('/github', 
+router.get('/github',
+   /* 
+   #swagger.tags = ['Authentication']
+   #swagger.summary = 'Initiate GitHub OAuth login'
+   #swagger.description = 'Redirects user to GitHub for OAuth authentication'
+   #swagger.responses[302] = { description: 'Redirect to GitHub OAuth' }
+   */
    passport.authenticate('github', { scope: ['user:email'] })
 );
 
 router.get('/github/callback',
+   /* 
+   #swagger.tags = ['Authentication']
+   #swagger.summary = 'GitHub OAuth callback'
+   #swagger.description = 'Handles GitHub OAuth callback and returns JWT token'
+   #swagger.responses[200] = { description: 'OAuth login successful' }
+   #swagger.responses[401] = { description: 'OAuth authentication failed' }
+   */
    passport.authenticate('github', { session: false }),
    (req, res) => {
-       // Generate JWT using your existing logic
        const tokenPayload = {
            userId: req.user._id,
            email: req.user.email,

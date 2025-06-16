@@ -12,7 +12,54 @@ const {
 } = require('../validators/workoutValidator');
 
 // GET all workouts - with authentication and filtering
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Get all workouts'
+    #swagger.description = 'Retrieve workouts with pagination and filtering. Users see only their own workouts unless admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'page',
+        in: 'query',
+        type: 'integer',
+        description: 'Page number for pagination (default: 1)'
+    }
+    #swagger.parameters[1] = {
+        name: 'limit',
+        in: 'query',
+        type: 'integer',
+        description: 'Number of workouts per page (default: 10)'
+    }
+    #swagger.parameters[2] = {
+        name: 'userId',
+        in: 'query',
+        type: 'string',
+        description: 'Filter by user ID (admin only)'
+    }
+    #swagger.parameters[3] = {
+        name: 'startDate',
+        in: 'query',
+        type: 'string',
+        description: 'Filter workouts from this date (YYYY-MM-DD)'
+    }
+    #swagger.parameters[4] = {
+        name: 'endDate',
+        in: 'query',
+        type: 'string',
+        description: 'Filter workouts to this date (YYYY-MM-DD)'
+    }
+    #swagger.parameters[5] = {
+        name: 'exerciseType',
+        in: 'query',
+        type: 'string',
+        description: 'Filter by exercise type (case insensitive)'
+    }
+    #swagger.responses[200] = { description: 'Workouts retrieved successfully with pagination info' }
+    #swagger.responses[400] = { description: 'Validation failed - Invalid pagination or date parameters' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[500] = { description: 'Failed to fetch workouts' }
+    */
+    async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
         const requestingUserId = new ObjectId(req.user.userId);
@@ -99,7 +146,27 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // GET single workout by ID - with authentication and authorization
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Get workout by ID'
+    #swagger.description = 'Retrieve a specific workout by ID. Users can only view their own workouts unless admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'Workout ID'
+    }
+    #swagger.responses[200] = { description: 'Workout retrieved successfully' }
+    #swagger.responses[400] = { description: 'Invalid workout ID format' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only view own workouts' }
+    #swagger.responses[404] = { description: 'Workout not found' }
+    #swagger.responses[500] = { description: 'Failed to fetch workout' }
+    */
+    async (req, res) => {
     try {
         if (!ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: 'Invalid workout ID format' });
@@ -132,7 +199,19 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // POST create new workout - with authentication and validation
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Create new workout'
+    #swagger.description = 'Create a new workout record. Users can only create workouts for themselves unless admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.responses[201] = { description: 'Workout created successfully' }
+    #swagger.responses[400] = { description: 'Validation failed / Target user does not exist' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only create workouts for yourself' }
+    #swagger.responses[500] = { description: 'Failed to create workout' }
+    */
+    async (req, res) => {
     try {
         // Validate input
         const validationErrors = validateWorkoutForCreation(req.body);
@@ -187,7 +266,27 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // PUT update workout - with authentication and authorization
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Update workout'
+    #swagger.description = 'Update workout information. Users can only update their own workouts unless admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'Workout ID'
+    }
+    #swagger.responses[200] = { description: 'Workout updated successfully' }
+    #swagger.responses[400] = { description: 'Invalid workout ID format / Validation failed / Target user does not exist' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only update own workouts / Only admins can reassign workouts' }
+    #swagger.responses[404] = { description: 'Workout not found' }
+    #swagger.responses[500] = { description: 'Failed to update workout' }
+    */
+    async (req, res) => {
     try {
         if (!ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: 'Invalid workout ID format' });
@@ -272,7 +371,27 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // DELETE workout - with authentication and authorization
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Delete workout'
+    #swagger.description = 'Delete a workout record. Users can only delete their own workouts unless admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'Workout ID'
+    }
+    #swagger.responses[200] = { description: 'Workout deleted successfully' }
+    #swagger.responses[400] = { description: 'Invalid workout ID format' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only delete own workouts' }
+    #swagger.responses[404] = { description: 'Workout not found' }
+    #swagger.responses[500] = { description: 'Failed to delete workout' }
+    */
+    async (req, res) => {
     try {
         if (!ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ error: 'Invalid workout ID format' });
@@ -312,7 +431,17 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // GET user's workout statistics - authenticated users only
-router.get('/stats/me', authenticateToken, async (req, res) => {
+router.get('/stats/me', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Get current user workout statistics'
+    #swagger.description = 'Retrieve workout statistics for the authenticated user including totals, averages, and recent activity'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.responses[200] = { description: 'Workout statistics retrieved successfully' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[500] = { description: 'Failed to fetch workout statistics' }
+    */
+    async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
         const requestingUserId = new ObjectId(req.user.userId);
@@ -368,7 +497,27 @@ router.get('/stats/me', authenticateToken, async (req, res) => {
 });
 
 // GET workout statistics for any user - Admin only
-router.get('/stats/:userId', authenticateToken, async (req, res) => {
+router.get('/stats/:userId', authenticateToken,
+    /*
+    #swagger.tags = ['Workouts']
+    #swagger.summary = 'Get user workout statistics'
+    #swagger.description = 'Retrieve workout statistics for any user by ID. Admin privileges required.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'userId',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'User ID to get workout statistics for'
+    }
+    #swagger.responses[200] = { description: 'User workout statistics retrieved successfully' }
+    #swagger.responses[400] = { description: 'Invalid userId format' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Admin privileges required' }
+    #swagger.responses[404] = { description: 'User not found' }
+    #swagger.responses[500] = { description: 'Failed to fetch user workout statistics' }
+    */
+    async (req, res) => {
     try {
         // Only admins can view other users' statistics
         if (req.user.role !== 'admin') {

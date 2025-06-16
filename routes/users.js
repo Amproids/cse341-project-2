@@ -13,7 +13,17 @@ const {
 const { authenticateToken } = require('../middleware/auth');
 
 // GET all users
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Get all users'
+    #swagger.description = 'Retrieve a list of all users with publicly safe fields only. Requires authentication.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.responses[200] = { description: 'Users retrieved successfully' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[500] = { description: 'Failed to fetch users' }
+    */
+    authenticateToken, async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
 
@@ -47,7 +57,26 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // GET single user by ID
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Get user by ID'
+    #swagger.description = 'Retrieve a specific user by ID. Users can only view their own profile unless they are admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'User ID'
+    }
+    #swagger.responses[200] = { description: 'User retrieved successfully' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only view own profile' }
+    #swagger.responses[404] = { description: 'User not found' }
+    #swagger.responses[500] = { description: 'Failed to fetch user' }
+    */
+    authenticateToken, async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
         const userId = new ObjectId(req.params.id);
@@ -92,7 +121,17 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // POST create new user
-router.post('/', async (req, res) => {
+router.post('/',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Create new user'
+    #swagger.description = 'Register a new user account with email and password'
+    #swagger.responses[201] = { description: 'User created successfully' }
+    #swagger.responses[400] = { description: 'Validation failed' }
+    #swagger.responses[409] = { description: 'Email already exists' }
+    #swagger.responses[500] = { description: 'Failed to create user' }
+    */
+    async (req, res) => {
     try {
         const {
             firstName,
@@ -163,7 +202,17 @@ router.post('/', async (req, res) => {
 });
 
 // POST login user
-router.post('/login', async (req, res) => {
+router.post('/login',
+    /*
+    #swagger.tags = ['Authentication']
+    #swagger.summary = 'User login'
+    #swagger.description = 'Authenticate user with email and password, returns JWT token'
+    #swagger.responses[200] = { description: 'Login successful' }
+    #swagger.responses[400] = { description: 'Validation failed' }
+    #swagger.responses[401] = { description: 'Invalid email or password / Account deactivated' }
+    #swagger.responses[500] = { description: 'Failed to login / Server configuration error' }
+    */
+    async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -233,7 +282,28 @@ router.post('/login', async (req, res) => {
 });
 
 // PUT update user
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Update user'
+    #swagger.description = 'Update user information. Users can only update their own profile unless they are admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'User ID'
+    }
+    #swagger.responses[200] = { description: 'User updated successfully' }
+    #swagger.responses[400] = { description: 'Validation failed' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only update own profile' }
+    #swagger.responses[404] = { description: 'User not found' }
+    #swagger.responses[409] = { description: 'Email already exists' }
+    #swagger.responses[500] = { description: 'Failed to update user' }
+    */
+    authenticateToken, async (req, res) => {
     try {
         const userId = new ObjectId(req.params.id);
         const requestingUserId = new ObjectId(req.user.userId);
@@ -305,8 +375,26 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // DELETE user
-// DELETE user
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Delete user'
+    #swagger.description = 'Delete a user account. Users can only delete their own account unless they are admin.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'User ID'
+    }
+    #swagger.responses[200] = { description: 'User deleted successfully' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Can only delete own account' }
+    #swagger.responses[404] = { description: 'User not found' }
+    #swagger.responses[500] = { description: 'Failed to delete user' }
+    */
+    authenticateToken, async (req, res) => {
     try {
         const userId = new ObjectId(req.params.id);
         const requestingUserId = new ObjectId(req.user.userId);
@@ -336,7 +424,27 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // PATCH update user role - Admin only route
-router.patch('/:id/role', authenticateToken, async (req, res) => {
+router.patch('/:id/role',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Update user role'
+    #swagger.description = 'Update a user\'s role. Admin privileges required.'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.parameters[0] = {
+        name: 'id',
+        in: 'path',
+        required: true,
+        type: 'string',
+        description: 'User ID'
+    }
+    #swagger.responses[200] = { description: 'User role updated successfully' }
+    #swagger.responses[400] = { description: 'Invalid role / Cannot change own admin role' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[403] = { description: 'Access denied - Admin privileges required' }
+    #swagger.responses[404] = { description: 'User not found' }
+    #swagger.responses[500] = { description: 'Failed to update user role' }
+    */
+    authenticateToken, async (req, res) => {
     try {
         // Only admins can change roles
         if (req.user.role !== 'admin') {
@@ -395,7 +503,18 @@ router.patch('/:id/role', authenticateToken, async (req, res) => {
 });
 
 // GET current user profile
-router.get('/profile/me', authenticateToken, async (req, res) => {
+router.get('/profile/me',
+    /*
+    #swagger.tags = ['Users']
+    #swagger.summary = 'Get current user profile'
+    #swagger.description = 'Retrieve the authenticated user\'s own profile information'
+    #swagger.security = [{ bearerAuth: [] }]
+    #swagger.responses[200] = { description: 'User profile retrieved successfully' }
+    #swagger.responses[401] = { description: 'Unauthorized - Authentication required' }
+    #swagger.responses[404] = { description: 'User not found' }
+    #swagger.responses[500] = { description: 'Failed to fetch user profile' }
+    */
+    authenticateToken, async (req, res) => {
     try {
         const db = mongodb.getDb().db('cse341-project2');
         const userId = new ObjectId(req.user.userId);

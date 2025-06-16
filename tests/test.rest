@@ -13,16 +13,16 @@
 ###############################################
 
 ### 1a. GitHub OAuth Login - USE BROWSER, NOT REST CLIENT
-# Open this URL in browser: http://localhost:8081/auth/github
+# Open this URL in browser: https://cse341-project-2-7bfl.onrender.com
 # Copy the token from JSON response and paste in @oauthToken variable above
 
 ### 1b. Get Current User Profile (OAuth Token)
-GET {{localUrl}}/users/profile/me
+GET {{baseUrl}}/users/profile/me
 Authorization: Bearer {{oauthToken}}
 # Copy user ID from response and paste in @userId above
 
 ### 1c. Get All Users with OAuth Token
-GET {{localUrl}}/users
+GET {{baseUrl}}/users
 Authorization: Bearer {{oauthToken}}
 
 ###############################################
@@ -30,10 +30,10 @@ Authorization: Bearer {{oauthToken}}
 ###############################################
 
 ### 2a. Protected Route WITHOUT Token (401 Error)
-GET {{localUrl}}/users
+GET {{baseUrl}}/users
 
 ### 2b. Protected Route WITH OAuth Token (Success)
-GET {{localUrl}}/users
+GET {{baseUrl}}/users
 Authorization: Bearer {{oauthToken}}
 
 ###############################################
@@ -41,7 +41,7 @@ Authorization: Bearer {{oauthToken}}
 ###############################################
 
 ### 3a. User Update Validation Error - Invalid Data
-PUT {{localUrl}}/users/{{userId}}
+PUT {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -56,7 +56,7 @@ Content-Type: application/json
 ###############################################
 
 ### 4a. Create Workout (Use OAuth Token)
-POST {{localUrl}}/workouts
+POST {{baseUrl}}/workouts
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -72,7 +72,7 @@ Content-Type: application/json
 ### Copy workout ID from response and paste in @workoutId above
 
 ### 4b. Workout Validation Error - Missing Required Fields
-POST {{localUrl}}/workouts
+POST {{baseUrl}}/workouts
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -81,15 +81,15 @@ Content-Type: application/json
 }
 
 ### 4c. Get All Workouts (Show Pagination)
-GET {{localUrl}}/workouts?page=1&limit=5
+GET {{baseUrl}}/workouts?page=1&limit=5
 Authorization: Bearer {{oauthToken}}
 
 ### 4d. Get Single Workout
-GET {{localUrl}}/workouts/{{workoutId}}
+GET {{baseUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 
 ### 4e. Update Workout (PUT Demo)
-PUT {{localUrl}}/workouts/{{workoutId}}
+PUT {{baseUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -104,22 +104,22 @@ Content-Type: application/json
 ###############################################
 
 ### 5a. Invalid ID Format (400 Error)
-GET {{localUrl}}/workouts/invalid-id-format
+GET {{baseUrl}}/workouts/invalid-id-format
 Authorization: Bearer {{oauthToken}}
 
 ### 5b. Non-existent Resource (404 Error)
-GET {{localUrl}}/workouts/507f1f77bcf86cd799439011
+GET {{baseUrl}}/workouts/507f1f77bcf86cd799439011
 Authorization: Bearer {{oauthToken}}
 
 ### 5c. Access Denied - No Authentication (401)
-GET {{localUrl}}/workouts/{{workoutId}}
+GET {{baseUrl}}/workouts/{{workoutId}}
 
 ###############################################
 # 6. UPDATE OPERATIONS (PUT Validation)
 ###############################################
 
 ### 6a. Update User (Valid Data)
-PUT {{localUrl}}/users/{{userId}}
+PUT {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -129,7 +129,7 @@ Content-Type: application/json
 }
 
 ### 6b. Update User Validation Error (400)
-PUT {{localUrl}}/users/{{userId}}
+PUT {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{oauthToken}}
 Content-Type: application/json
 
@@ -143,11 +143,11 @@ Content-Type: application/json
 ###############################################
 
 ### 7a. Delete Workout
-DELETE {{localUrl}}/workouts/{{workoutId}}
+DELETE {{baseUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 
 ### 7b. Verify Deletion (404 Expected)
-GET {{localUrl}}/workouts/{{workoutId}}
+GET {{baseUrl}}/workouts/{{workoutId}}
 Authorization: Bearer {{oauthToken}}
 
 ###############################################

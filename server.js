@@ -20,11 +20,17 @@ app.use(passport.initialize());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // OAuth routes
+// #swagger.tags = ['Authentication']
 app.use('/auth', require('./routes/auth'));
 
 // Route handlers for fitness tracker
+// #swagger.tags = ['Workouts']
 app.use('/workouts', require('./routes/workouts'));
+
+// #swagger.tags = ['Users']
 app.use('/users', require('./routes/users'));
+
+// Default routes (likely has index/home page)
 app.use('/', require('./routes'));
 
 // Initialize MongoDB connection and start server
