@@ -2,33 +2,11 @@
   "swagger": "2.0",
   "info": {
     "title": "CSE 341 Project 2 - Fitness Tracker API",
-    "description": "REST API for tracking workouts and managing users in a fitness application. Supports JWT authentication and OAuth with GitHub.",
-    "version": "1.0.0",
-    "contact": {
-      "name": "API Support",
-      "email": "support@fitnessapi.com"
-    }
+    "description": "REST API for tracking workouts and managing users",
+    "version": "1.0.0"
   },
-  "host": "localhost:8081",
+  "host": "http//:localhost:8081",
   "basePath": "/",
-  "tags": [
-    {
-      "name": "Authentication",
-      "description": "User authentication and OAuth endpoints"
-    },
-    {
-      "name": "Users",
-      "description": "User management operations"
-    },
-    {
-      "name": "Workouts",
-      "description": "Workout tracking and management"
-    },
-    {
-      "name": "Statistics",
-      "description": "Workout statistics and analytics"
-    }
-  ],
   "schemes": [
     "http",
     "https"
@@ -37,40 +15,48 @@
     "Bearer": {
       "type": "apiKey",
       "name": "Authorization",
-      "in": "header",
-      "description": "JWT token. Format: Bearer {token}"
+      "in": "header"
     }
   },
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
   "paths": {
     "/auth/github": {
       "get": {
-        "description": "",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Initiate GitHub OAuth login",
+        "description": "Redirects user to GitHub for OAuth authentication",
         "responses": {
-          "default": {
-            "description": ""
+          "302": {
+            "description": "Redirect to GitHub OAuth"
           }
         }
       }
     },
     "/auth/github/callback": {
       "get": {
-        "description": "",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "GitHub OAuth callback",
+        "description": "Handles GitHub OAuth callback and returns JWT token",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OAuth login successful"
+          },
+          "401": {
+            "description": "OAuth authentication failed"
           }
         }
       }
     },
     "/workouts/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get all workouts",
+        "description": "Retrieve workouts with pagination and filtering. Users see only their own workouts unless admin.",
         "parameters": [
           {
             "name": "page",
@@ -110,24 +96,33 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Workouts retrieved successfully with pagination info"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Validation failed - Invalid pagination or date parameters"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
             "description": "Forbidden"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch workouts"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "post": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Create new workout",
+        "description": "Create a new workout record. Users can only create workouts for themselves unless admin.",
         "parameters": [
           {
             "name": "authorization",
@@ -149,26 +144,35 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Workout created successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Validation failed / Target user does not exist"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only create workouts for yourself"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to create workout"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/workouts/{id}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get workout by ID",
+        "description": "Retrieve a specific workout by ID. Users can only view their own workouts unless admin.",
         "parameters": [
           {
             "name": "id",
@@ -184,27 +188,36 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Workout retrieved successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Invalid workout ID format"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only view own workouts"
           },
           "404": {
-            "description": "Not Found"
+            "description": "Workout not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch workout"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "put": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Update workout",
+        "description": "Update workout information. Users can only update their own workouts unless admin.",
         "parameters": [
           {
             "name": "id",
@@ -232,27 +245,36 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Workout updated successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Invalid workout ID format / Validation failed / Target user does not exist"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only update own workouts / Only admins can reassign workouts"
           },
           "404": {
-            "description": "Not Found"
+            "description": "Workout not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to update workout"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Delete workout",
+        "description": "Delete a workout record. Users can only delete their own workouts unless admin.",
         "parameters": [
           {
             "name": "id",
@@ -268,29 +290,38 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Workout deleted successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Invalid workout ID format"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only delete own workouts"
           },
           "404": {
-            "description": "Not Found"
+            "description": "Workout not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to delete workout"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/workouts/stats/me": {
       "get": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get current user workout statistics",
+        "description": "Retrieve workout statistics for the authenticated user including totals, averages, and recent activity",
         "parameters": [
           {
             "name": "authorization",
@@ -300,23 +331,32 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Workout statistics retrieved successfully"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
             "description": "Forbidden"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch workout statistics"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/workouts/stats/{userId}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Workouts"
+        ],
+        "summary": "Get user workout statistics",
+        "description": "Retrieve workout statistics for any user by ID. Admin privileges required.",
         "parameters": [
           {
             "name": "userId",
@@ -332,29 +372,38 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User workout statistics retrieved successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Invalid userId format"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Admin privileges required"
           },
           "404": {
-            "description": "Not Found"
+            "description": "User not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch user workout statistics"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/users/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users",
+        "description": "Retrieve a list of all users with publicly safe fields only. Requires authentication.",
         "parameters": [
           {
             "name": "authorization",
@@ -364,21 +413,30 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Users retrieved successfully"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
             "description": "Forbidden"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch users"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "post": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create new user",
+        "description": "Register a new user account with email and password",
         "parameters": [
           {
             "name": "body",
@@ -422,23 +480,27 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "User created successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Validation failed"
           },
           "409": {
-            "description": "Conflict"
+            "description": "Email already exists"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to create user"
           }
         }
       }
     },
     "/users/{id}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user by ID",
+        "description": "Retrieve a specific user by ID. Users can only view their own profile unless they are admin.",
         "parameters": [
           {
             "name": "id",
@@ -454,24 +516,33 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User retrieved successfully"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only view own profile"
           },
           "404": {
-            "description": "Not Found"
+            "description": "User not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch user"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "put": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user",
+        "description": "Update user information. Users can only update their own profile unless they are admin.",
         "parameters": [
           {
             "name": "id",
@@ -517,30 +588,39 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User updated successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Validation failed"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only update own profile"
           },
           "404": {
-            "description": "Not Found"
+            "description": "User not found"
           },
           "409": {
-            "description": "Conflict"
+            "description": "Email already exists"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to update user"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete user",
+        "description": "Delete a user account. Users can only delete their own account unless they are admin.",
         "parameters": [
           {
             "name": "id",
@@ -556,26 +636,35 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User deleted successfully"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Can only delete own account"
           },
           "404": {
-            "description": "Not Found"
+            "description": "User not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to delete user"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/users/login": {
       "post": {
-        "description": "",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "User login",
+        "description": "Authenticate user with email and password, returns JWT token",
         "parameters": [
           {
             "name": "body",
@@ -595,23 +684,27 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Login successful"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Validation failed"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Invalid email or password / Account deactivated"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to login / Server configuration error"
           }
         }
       }
     },
     "/users/{id}/role": {
       "patch": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user role",
+        "description": "Update a user\\'s role. Admin privileges required.",
         "parameters": [
           {
             "name": "id",
@@ -639,29 +732,38 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User role updated successfully"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Invalid role / Cannot change own admin role"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Access denied - Admin privileges required"
           },
           "404": {
-            "description": "Not Found"
+            "description": "User not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to update user role"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/users/profile/me": {
       "get": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get current user profile",
+        "description": "Retrieve the authenticated user\\'s own profile information",
         "parameters": [
           {
             "name": "authorization",
@@ -671,21 +773,26 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "User profile retrieved successfully"
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - Authentication required"
           },
           "403": {
             "description": "Forbidden"
           },
           "404": {
-            "description": "Not Found"
+            "description": "User not found"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Failed to fetch user profile"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/": {
@@ -698,1964 +805,5 @@
         }
       }
     }
-  },
-  "definitions": {
-    "User": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "_id": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            },
-            "firstName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "John"
-                }
-              }
-            },
-            "lastName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Doe"
-                }
-              }
-            },
-            "email": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "email"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "john.doe@example.com"
-                }
-              }
-            },
-            "dateOfBirth": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "1990-01-15T00:00:00.000Z"
-                }
-              }
-            },
-            "gender": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "MALE",
-                    "FEMALE",
-                    "OTHER",
-                    "NOT_SPECIFIED"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "MALE"
-                }
-              }
-            },
-            "height": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 180
-                }
-              }
-            },
-            "weight": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 75
-                }
-              }
-            },
-            "role": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "user",
-                    "admin"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "user"
-                }
-              }
-            },
-            "emailVerified": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "boolean"
-                },
-                "example": {
-                  "type": "boolean",
-                  "example": false
-                }
-              }
-            },
-            "isActive": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "boolean"
-                },
-                "example": {
-                  "type": "boolean",
-                  "example": true
-                }
-              }
-            },
-            "isTestUser": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "boolean"
-                },
-                "example": {
-                  "type": "boolean",
-                  "example": false
-                }
-              }
-            },
-            "githubId": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "12345678"
-                }
-              }
-            },
-            "githubUsername": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "johndoe"
-                }
-              }
-            },
-            "createdAt": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03T10:30:00.000Z"
-                }
-              }
-            },
-            "updatedAt": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03T10:30:00.000Z"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "UserPublic": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "_id": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            },
-            "firstName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "John"
-                }
-              }
-            },
-            "lastName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Doe"
-                }
-              }
-            },
-            "gender": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "MALE"
-                }
-              }
-            },
-            "createdAt": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03T10:30:00.000Z"
-                }
-              }
-            },
-            "isTestUser": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "boolean"
-                },
-                "example": {
-                  "type": "boolean",
-                  "example": false
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "UserRegistration": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "required": {
-          "type": "array",
-          "example": [
-            "firstName",
-            "lastName",
-            "email",
-            "password",
-            "passwordConfirm",
-            "dateOfBirth",
-            "gender"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "firstName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 50
-                },
-                "example": {
-                  "type": "string",
-                  "example": "John"
-                }
-              }
-            },
-            "lastName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 50
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Doe"
-                }
-              }
-            },
-            "email": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "email"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "john.doe@example.com"
-                }
-              }
-            },
-            "password": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 8
-                },
-                "example": {
-                  "type": "string",
-                  "example": "SecurePassword123!"
-                }
-              }
-            },
-            "passwordConfirm": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 8
-                },
-                "example": {
-                  "type": "string",
-                  "example": "SecurePassword123!"
-                }
-              }
-            },
-            "dateOfBirth": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "1990-01-15"
-                }
-              }
-            },
-            "gender": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "MALE",
-                    "FEMALE",
-                    "OTHER",
-                    "NOT_SPECIFIED"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "MALE"
-                }
-              }
-            },
-            "height": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 0
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 300
-                },
-                "example": {
-                  "type": "number",
-                  "example": 180
-                }
-              }
-            },
-            "weight": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 0
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 1000
-                },
-                "example": {
-                  "type": "number",
-                  "example": 75
-                }
-              }
-            },
-            "isTestUser": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "boolean"
-                },
-                "example": {
-                  "type": "boolean",
-                  "example": false
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "UserUpdate": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "firstName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 50
-                },
-                "example": {
-                  "type": "string",
-                  "example": "John"
-                }
-              }
-            },
-            "lastName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 50
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Doe"
-                }
-              }
-            },
-            "email": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "email"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "john.doe@example.com"
-                }
-              }
-            },
-            "dateOfBirth": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "1990-01-15"
-                }
-              }
-            },
-            "gender": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "MALE",
-                    "FEMALE",
-                    "OTHER",
-                    "NOT_SPECIFIED"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "MALE"
-                }
-              }
-            },
-            "height": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 0
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 300
-                },
-                "example": {
-                  "type": "number",
-                  "example": 180
-                }
-              }
-            },
-            "weight": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 0
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 1000
-                },
-                "example": {
-                  "type": "number",
-                  "example": 75
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "UserLogin": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "required": {
-          "type": "array",
-          "example": [
-            "email",
-            "password"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "email"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "john.doe@example.com"
-                }
-              }
-            },
-            "password": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "SecurePassword123!"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "UserRoleUpdate": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "required": {
-          "type": "array",
-          "example": [
-            "role"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "role": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "user",
-                    "admin"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "admin"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "Workout": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "_id": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b4"
-                }
-              }
-            },
-            "userId": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            },
-            "workoutName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Morning Run"
-                }
-              }
-            },
-            "date": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03T00:00:00.000Z"
-                }
-              }
-            },
-            "duration": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 30
-                }
-              }
-            },
-            "caloriesBurned": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 300
-                }
-              }
-            },
-            "exerciseType": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "cardio",
-                    "strength",
-                    "flexibility",
-                    "sports",
-                    "other"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "cardio"
-                }
-              }
-            },
-            "notes": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Beautiful morning run in the park"
-                }
-              }
-            },
-            "createdAt": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03T10:30:00.000Z"
-                }
-              }
-            },
-            "updatedAt": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date-time"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03T10:30:00.000Z"
-                }
-              }
-            },
-            "createdBy": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "WorkoutCreate": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "required": {
-          "type": "array",
-          "example": [
-            "userId",
-            "workoutName",
-            "date",
-            "duration",
-            "caloriesBurned",
-            "exerciseType"
-          ],
-          "items": {
-            "type": "string"
-          }
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            },
-            "workoutName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 100
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Morning Run"
-                }
-              }
-            },
-            "date": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03"
-                }
-              }
-            },
-            "duration": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 1440
-                },
-                "example": {
-                  "type": "number",
-                  "example": 30
-                }
-              }
-            },
-            "caloriesBurned": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 0
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 10000
-                },
-                "example": {
-                  "type": "number",
-                  "example": 300
-                }
-              }
-            },
-            "exerciseType": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "cardio",
-                    "strength",
-                    "flexibility",
-                    "sports",
-                    "other"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "cardio"
-                }
-              }
-            },
-            "notes": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 500
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Beautiful morning run in the park"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "WorkoutUpdate": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            },
-            "workoutName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "minLength": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 100
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Morning Run"
-                }
-              }
-            },
-            "date": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "format": {
-                  "type": "string",
-                  "example": "date"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "2024-06-03"
-                }
-              }
-            },
-            "duration": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 1
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 1440
-                },
-                "example": {
-                  "type": "number",
-                  "example": 30
-                }
-              }
-            },
-            "caloriesBurned": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "minimum": {
-                  "type": "number",
-                  "example": 0
-                },
-                "maximum": {
-                  "type": "number",
-                  "example": 10000
-                },
-                "example": {
-                  "type": "number",
-                  "example": 300
-                }
-              }
-            },
-            "exerciseType": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "enum": {
-                  "type": "array",
-                  "example": [
-                    "cardio",
-                    "strength",
-                    "flexibility",
-                    "sports",
-                    "other"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": {
-                  "type": "string",
-                  "example": "cardio"
-                }
-              }
-            },
-            "notes": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "maxLength": {
-                  "type": "number",
-                  "example": 500
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Beautiful morning run in the park"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "WorkoutStats": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b3"
-                }
-              }
-            },
-            "userName": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "John Doe"
-                }
-              }
-            },
-            "totalWorkouts": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 25
-                }
-              }
-            },
-            "totalDuration": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 1500
-                }
-              }
-            },
-            "totalCalories": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 12500
-                }
-              }
-            },
-            "averageDuration": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 60
-                }
-              }
-            },
-            "averageCalories": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 500
-                }
-              }
-            },
-            "exerciseTypes": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "array"
-                },
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "example": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "type": "array",
-                  "example": [
-                    "cardio",
-                    "strength",
-                    "flexibility"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "recentWorkouts": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "number"
-                },
-                "example": {
-                  "type": "number",
-                  "example": 3
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "LoginResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Login successful"
-                }
-              }
-            },
-            "token": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                }
-              }
-            },
-            "user": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "object"
-                },
-                "properties": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "6830c1332164274e3bf8b9b3"
-                        }
-                      }
-                    },
-                    "firstName": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "John"
-                        }
-                      }
-                    },
-                    "lastName": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "Doe"
-                        }
-                      }
-                    },
-                    "email": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "john.doe@example.com"
-                        }
-                      }
-                    },
-                    "role": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "user"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "OAuthResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "GitHub OAuth login successful"
-                }
-              }
-            },
-            "token": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                }
-              }
-            },
-            "user": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "object"
-                },
-                "properties": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "6830c1332164274e3bf8b9b3"
-                        }
-                      }
-                    },
-                    "firstName": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "John"
-                        }
-                      }
-                    },
-                    "lastName": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "Doe"
-                        }
-                      }
-                    },
-                    "email": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "john.doe@example.com"
-                        }
-                      }
-                    },
-                    "role": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "user"
-                        }
-                      }
-                    },
-                    "githubUsername": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "string"
-                        },
-                        "example": {
-                          "type": "string",
-                          "example": "johndoe"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "WorkoutListResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "workouts": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "array"
-                },
-                "items": {
-                  "$ref": "#/definitions/Workout"
-                }
-              }
-            },
-            "pagination": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "object"
-                },
-                "properties": {
-                  "type": "object",
-                  "properties": {
-                    "currentPage": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "number"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 1
-                        }
-                      }
-                    },
-                    "totalPages": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "number"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 5
-                        }
-                      }
-                    },
-                    "totalWorkouts": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "number"
-                        },
-                        "example": {
-                          "type": "number",
-                          "example": 50
-                        }
-                      }
-                    },
-                    "hasNextPage": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "boolean"
-                        },
-                        "example": {
-                          "type": "boolean",
-                          "example": true
-                        }
-                      }
-                    },
-                    "hasPrevPage": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "example": "boolean"
-                        },
-                        "example": {
-                          "type": "boolean",
-                          "example": false
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "SuccessResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Operation completed successfully"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "CreateResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Resource created successfully"
-                }
-              }
-            },
-            "_id": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "6830c1332164274e3bf8b9b4"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "ErrorResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "example": "object"
-        },
-        "properties": {
-          "type": "object",
-          "properties": {
-            "error": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "string"
-                },
-                "example": {
-                  "type": "string",
-                  "example": "Error message"
-                }
-              }
-            },
-            "details": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "example": "array"
-                },
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "example": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "type": "array",
-                  "example": [
-                    "Validation error details"
-                  ],
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "security": [
-    {
-      "Bearer": []
-    }
-  ]
+  }
 }

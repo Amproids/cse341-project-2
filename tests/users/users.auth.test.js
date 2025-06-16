@@ -217,7 +217,7 @@ describe('User Authentication (POST /users/login)', () => {
          * Verifies that deactivated accounts cannot login
          * Note: This test requires a way to deactivate accounts
          */
-        test.skip('should reject login for inactive account', async () => {
+        test('should reject login for inactive account', async () => {
             // This test is skipped because there's no endpoint to deactivate accounts
             // In production, you'd have an admin endpoint or database script to set isActive = false
             // const response = await request()
